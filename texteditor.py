@@ -22,7 +22,6 @@ def open_file():
     except:
         return
     
-    handle()
     text.delete(0.0, tk.END)
     try:
         with open(file_name, "r") as f:
@@ -32,6 +31,7 @@ def open_file():
                 handle()
                 filename = file_name
                 root.title(filename.split('/')[-1])
+                change_something = False
             except:
                 msgbox.showerror(title="Oops ;(", message="Не получилось считать из файла!")
                 return
@@ -102,11 +102,16 @@ def tab_handle(event):
 
 def keypress(event):
     global change_something, root, filename
-    keys = ["Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R", "KP_Enter"]
-    if change_something or not ((event.state == 16 or event.state == 18) and event.keysym not in keys):
+    c = event.keysym
+    s = event.state
+    ctrl  = (s & 0x4) != 0
+    alt   = (s & 0x8) != 0 or (s & 0x80) != 0
+    shift = (s & 0x1) != 0
+    if change_something or alt or ctrl or shift:
         return
     change_something = True
     root.title(f"*{filename.split('/')[-1] if filename else 'untitled'}")
+
 
 
 root = tk.Tk()
