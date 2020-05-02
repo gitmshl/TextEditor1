@@ -9,8 +9,12 @@ change_something = False
 def handle():
     global filename, change_something
     if change_something:
-        if msgbox.askokcancel(title="Сохранение файла", message="Файл был изменен. Сохранить изменения?"):
+        answer = msgbox.askyesnocancel(title="Сохранение файла", message="Файл был изменен. Сохранить изменения?")
+        if answer is True:
             save()
+        elif answer is None:
+            return "cancel"
+    return "ok"
 
 
 def open_file():
@@ -49,7 +53,6 @@ def new_file():
 
 
 def save_as(file_name=None):
-    print("save_as function call")
     global filename, text, change_something
     if not file_name:
         try:
@@ -102,7 +105,6 @@ def tab_handle(event):
 
 def keypress(event):
     global change_something, root, filename
-    c = event.keysym
     s = event.state
     ctrl  = (s & 0x4) != 0
     alt   = (s & 0x8) != 0 or (s & 0x80) != 0
@@ -112,6 +114,11 @@ def keypress(event):
     change_something = True
     root.title(f"*{filename.split('/')[-1] if filename else 'untitled'}")
 
+
+def window_close():
+    global root
+    if handle() == "ok":
+        root.quit()
 
 
 root = tk.Tk()
@@ -142,5 +149,7 @@ text.bind("<Control-Key-o>", lambda e: open_file())
 text.bind("<Control-Key-O>", lambda e: open_file())
 text.bind("<Tab>", tab_handle)
 text.bind("<KeyPress>", keypress)
+
+root.protocol("WM_DELETE_WINDOW", window_close)
 
 root.mainloop()
