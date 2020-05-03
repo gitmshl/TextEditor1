@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as fl
 import tkinter.messagebox as msgbox
+import math
 
 filename = ""
 change_something = False
@@ -103,9 +104,20 @@ def tab_handle(event):
     return "break"
 
 
+def draw_lines():
+    global text, prev_count_of_lines, linenumbers
+    count_of_lines = int(text.index('end').split('.')[0]) - 1
+    if count_of_lines != prev_count_of_lines:
+        linenumbers["width"] = max(2, int(math.log(count_of_lines, 10)) + 1)
+        linenumbers.delete(0.0, tk.END)
+        linenumbers.insert(0.0, "".join([f"{i}\n" if i < count_of_lines else f"{i}" for i in range(1, count_of_lines + 1)]))
+        prev_count_of_lines = count_of_lines
+
+
 def keypress(event):
     global change_something, root, filename
     s = event.state
+    draw_lines()
     ctrl  = (s & 0x4) != 0
     alt   = (s & 0x8) != 0 or (s & 0x80) != 0
     shift = (s & 0x1) != 0
@@ -121,11 +133,38 @@ def window_close():
         root.quit()
 
 
+def scrollBoth(action, position, type=None):
+    global text, linenumbers
+    text.yview_moveto(position)
+    linenumbers.yview_moveto(position)
+
+
+def updateScroll(first, last, type_=None):
+    global text, linenumbers, scrllbar
+    text.yview_moveto(first)
+    scrllbar.set(first, last)
+    draw_lines()
+    linenumbers.yview_moveto(first)
+
+
 root = tk.Tk()
 root.title("untitled")
 
+scrllbar = tk.Scrollbar(root)
+scrllbar.config(command=scrollBoth)
+scrllbar.pack(side=tk.RIGHT, fill="y")
+
 text = tk.Text(root, bg="gray12", fg="white")
 text.config(insertbackground="white")
+text.config(yscrollcommand=updateScroll)
+
+prev_count_of_lines = 1
+linenumbers = tk.Text(root, width=2)
+linenumbers.tag_configure('line', justify='right')
+linenumbers.config(bg="gray12")
+linenumbers.config(fg="white")
+linenumbers.insert(0.0, "1")
+linenumbers.pack(fill="y", side=tk.LEFT, anchor="s")
 
 text.pack(expand=True, fill='both', anchor='s')
 
@@ -148,7 +187,7 @@ text.bind("<Control-Key-S>", lambda e: save())
 text.bind("<Control-Key-o>", lambda e: open_file())
 text.bind("<Control-Key-O>", lambda e: open_file())
 text.bind("<Tab>", tab_handle)
-text.bind("<KeyPress>", keypress)
+text.bind("<KeyRelease>", keypress)
 
 root.protocol("WM_DELETE_WINDOW", window_close)
 
