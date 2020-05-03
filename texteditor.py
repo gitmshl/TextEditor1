@@ -48,6 +48,7 @@ def open_file():
 def new_file():
     global filename, text, change_something, root
     handle()
+    filename = None
     root.title("untitled")
     text.delete(0.0, tk.END)
     change_something = False
@@ -194,6 +195,8 @@ text.bind("<Control-Key-s>", lambda e: save())
 text.bind("<Control-Key-S>", lambda e: save())
 text.bind("<Control-Key-o>", lambda e: open_file())
 text.bind("<Control-Key-O>", lambda e: open_file())
+text.bind("<Control-Key-n>", lambda e: new_file())
+text.bind("<Control-Key-N>", lambda e: new_file())
 text.bind("<Tab>", tab_handle)
 text.bind("<BackSpace>", do_backspace)
 text.bind("<KeyRelease>", keypress)
