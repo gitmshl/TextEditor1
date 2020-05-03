@@ -147,6 +147,14 @@ def updateScroll(first, last, type_=None):
     linenumbers.yview_moveto(first)
 
 
+def do_backspace(event):
+    global text
+    before = "".join([text.get("insert-4c"), text.get("insert-3c"), text.get("insert-2c"), text.get("insert-1c")])
+    before = before.split('\n')[-1]
+    if before == " " * 4:
+        text.delete("insert -3 chars", "insert")
+
+
 root = tk.Tk()
 root.title("untitled")
 
@@ -187,6 +195,7 @@ text.bind("<Control-Key-S>", lambda e: save())
 text.bind("<Control-Key-o>", lambda e: open_file())
 text.bind("<Control-Key-O>", lambda e: open_file())
 text.bind("<Tab>", tab_handle)
+text.bind("<BackSpace>", do_backspace)
 text.bind("<KeyRelease>", keypress)
 
 root.protocol("WM_DELETE_WINDOW", window_close)
