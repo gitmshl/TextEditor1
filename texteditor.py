@@ -2,9 +2,61 @@ import tkinter as tk
 import tkinter.filedialog as fl
 import tkinter.messagebox as msgbox
 import math
+import json
 
 filename = ""
 change_something = False
+
+key_word_colors = {'int': 'blue'}
+regexp_left = "(\W|^)"
+regexp_right = "(\W|$)"
+
+
+def load_color(filename):
+    global key_word_colors
+    with open(filename, 'r') as json_file:
+        data = json.load(json_file)
+    for color in data:
+        for word in data[color]:
+            key_word_colors[word] = color
+
+
+def init_color(file_extension):
+    with open("__init__colors.txt", 'r') as f:
+        lines = f.readlines()
+
+    for filext in lines:
+        if file_extension == filext.split(' ')[0]:
+            load_color(filext.split(' ')[1].rstrip())
+            return
+    global key_word_colors
+    key_word_colors = {}
+
+
+def redraw_all(filename=None):
+    if filename: 
+        init_color(filename.split('.')[-1])
+    global text, symbols, regexp_left, regexp_right
+    for key_word in key_word_colors:
+        color = key_word_colors[key_word]
+        startIndex = '1.0'
+        while True:
+            startIndex = text.search(rf"{regexp_left}{key_word}{regexp_right}", startIndex, tk.END, regexp=True) # search for occurence of k
+            if startIndex:
+                startIndex = text.search(f"{key_word}", startIndex, tk.END)
+                endIndex = text.index('%s+%dc' % (startIndex, (len(key_word)))) # find end of k
+                text.tag_add(key_word, startIndex, endIndex) # add tag to k
+                text.tag_config(key_word, foreground=color)      # and color it with v
+                startIndex = endIndex # reset startIndex to continue searching
+            else:
+                break
+
+
+def redraw():
+    global text
+    for tag in text.tag_names():
+        text.tag_delete(tag)
+    redraw_all()
 
 
 def handle():
@@ -32,9 +84,10 @@ def open_file():
         with open(file_name, "r") as f:
             try:
                 t = f.read()
-                text.insert(0.0, t)
-                handle()
                 filename = file_name
+                text.insert(0.0, t)
+                redraw_all(filename)
+                handle()
                 root.title(filename.split('/')[-1])
                 change_something = False
             except:
@@ -115,8 +168,9 @@ def draw_lines():
         prev_count_of_lines = count_of_lines
 
 
-def keypress(event):
+def keyrelease(event):
     global change_something, root, filename
+    redraw()
     s = event.state
     draw_lines()
     ctrl  = (s & 0x4) != 0
@@ -199,7 +253,7 @@ text.bind("<Control-Key-n>", lambda e: new_file())
 text.bind("<Control-Key-N>", lambda e: new_file())
 text.bind("<Tab>", tab_handle)
 text.bind("<BackSpace>", do_backspace)
-text.bind("<KeyRelease>", keypress)
+text.bind("<KeyRelease>", keyrelease)
 
 root.protocol("WM_DELETE_WINDOW", window_close)
 

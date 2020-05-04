@@ -1,0 +1,5 @@
+{
+    "blue":["int", "double", "return", "void", "float", "long", "namespace", "const", "for", "while"],
+    "magenta":["include", "using", "break", "continue"],
+    "green": ["std", "vector", "list", "queue", "cin", "cout"]
+}
