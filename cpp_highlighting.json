@@ -1,6 +1,6 @@
 {
-    "blue":["int", "double", "return", "void", "float", "long", "namespace", "const", "for", "while", 
+    "blue2":["int", "double", "return", "void", "float", "long", "namespace", "const", "for", "while", 
         "template", "class", "typename", "size_t", "bool", "true", "false", "if", "else"],
     "magenta":["#include", "using", "break", "continue", "#define"],
-    "green": ["std", "vector", "list", "queue", "cin", "cout", "iostream"]
+    "green2": ["std", "vector", "list", "queue", "cin", "cout", "iostream"]
 }
